@@ -1,0 +1,55 @@
+<head>
+	<title>Kixel.com</title>
+</head>
+<body>
+<img id="picURL" width="500px" height="500px;" alt="Waiting for game to start!" />
+<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
+	<div>Welcome to chatroom!</div>
+</div>
+ 
+<form id="chat-form">
+	<input id="chat-input" type="text" style="width:500px"></input>
+</form>
+
+<button type="submit" form="chat-form" value="Submit">Submit</button>
+<button onclick="happy()">Happy</button>
+<button onclick="playGame()">Play</button>
+
+</body>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+    var socket = io();
+    var chatText = document.getElementById('chat-text');
+    var chatInput = document.getElementById('chat-input');
+    var chatForm = document.getElementById('chat-form');
+	
+	function playGame(imgurl) {
+		socket.emit("gameStart", {});
+	}
+
+	socket.on("imageURL", function(url){
+		picURL.src = url;
+	});
+   
+    socket.on('addToChat',function(data){
+        chatText.innerHTML += '<div>' + data + '</div>';
+	chatText.scrollTop = chatText.scrollHeight;
+    });
+    socket.on('happyMessage',function(data){
+        chatText.innerHTML += '<div style="color: red;">' + data + '</div>';
+	chatText.scrollTop = chatText.scrollHeight;
+    });
+   
+    chatForm.onsubmit = function(e){
+        e.preventDefault();
+        socket.emit('sendMsgToServer',chatInput.value);
+        chatInput.value = '';      
+    }
+	var happy = function() {
+		socket.emit("happy", {
+			reason:"its my birthday"
+		});
+	}
+
+
+</script>
